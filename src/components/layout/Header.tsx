@@ -2,7 +2,7 @@
 import React from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Menu, Moon, Sun, Language } from 'lucide-react';
+import { Menu, Moon, Sun, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
@@ -24,7 +24,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Language">
-              <Language className="h-5 w-5" />
+              <Languages className="h-5 w-5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
