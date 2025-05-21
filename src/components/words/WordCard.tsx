@@ -29,13 +29,23 @@ const WordCard: React.FC<WordCardProps> = ({
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
 
-  // Generate a consistent image for each word
+  // Generate a consistent image for each word using a more reliable method
   const generateImageUrl = (word: string) => {
-    // Use Unsplash random images with the word as the search term
-    // We're using a fixed size to ensure consistency
-    // Using the word as query parameter ensures we get a related image
-    const encodedWord = encodeURIComponent(word);
-    return `https://source.unsplash.com/featured/300x200?${encodedWord}`;
+    // Use placeholder images for predictable results
+    // We'll use the first character of the word to determine which placeholder to use
+    const firstChar = word.charAt(0).toLowerCase();
+    const charCode = firstChar.charCodeAt(0);
+    
+    // Use one of 4 placeholder images based on the character code
+    const placeholders = [
+      "photo-1618160702438-9b02ab6515c9",
+      "photo-1472396961693-142e6e269027",
+      "photo-1535268647677-300dbf3d78d1",
+      "photo-1501286353178-1ec881214838"
+    ];
+    
+    const index = charCode % placeholders.length;
+    return `https://images.unsplash.com/${placeholders[index]}?w=300&h=200&fit=crop&q=80`;
   };
 
   const handleFlip = () => {
