@@ -4,7 +4,7 @@ import { Word } from '@/contexts/VocabularyContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Volume2 } from 'lucide-react';
+import { Volume2, Image } from 'lucide-react';
 
 interface WordCardProps {
   word: Word;
@@ -26,6 +26,17 @@ const WordCard: React.FC<WordCardProps> = ({
   const { language, t } = useLanguage();
   const [flipped, setFlipped] = useState(showAnswer);
   const [showExample, setShowExample] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+
+  // Generate a consistent image for each word
+  const generateImageUrl = (word: string) => {
+    // Use Unsplash random images with the word as the search term
+    // We're using a fixed size to ensure consistency
+    // Using the word as query parameter ensures we get a related image
+    const encodedWord = encodeURIComponent(word);
+    return `https://source.unsplash.com/featured/300x200?${encodedWord}`;
+  };
 
   const handleFlip = () => {
     if (!showAnswer) {
@@ -40,6 +51,15 @@ const WordCard: React.FC<WordCardProps> = ({
     speechSynthesis.speak(utterance);
   };
 
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
+  const handleImageError = () => {
+    setImageError(true);
+    setImageLoading(false);
+  };
+
   return (
     <div className={`w-full max-w-md mx-auto perspective-1000 ${flip ? 'flip-card-flip' : ''}`}>
       <div className="flip-card-inner relative w-full h-full">
@@ -50,6 +70,31 @@ const WordCard: React.FC<WordCardProps> = ({
           <div className="text-center">
             <h3 className="text-3xl font-bold mb-2">{word.word}</h3>
             <p className="text-muted-foreground mb-4">{word.phonetic}</p>
+            
+            {/* Memory image */}
+            <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden bg-muted">
+              {!imageError ? (
+                <>
+                  {imageLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+                    </div>
+                  )}
+                  <img
+                    src={generateImageUrl(word.word)}
+                    alt={`Visual for ${word.word}`}
+                    className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
+                    onLoad={handleImageLoad}
+                    onError={handleImageError}
+                  />
+                </>
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
+                  <Image className="h-8 w-8 mb-2" />
+                  <p className="text-sm">{t('common.imageNotAvailable')}</p>
+                </div>
+              )}
+            </div>
             
             <Button 
               variant="ghost" 
@@ -72,6 +117,31 @@ const WordCard: React.FC<WordCardProps> = ({
           <div className="text-center">
             <h3 className="text-3xl font-bold mb-2">{word.word}</h3>
             <p className="text-muted-foreground mb-4">{word.phonetic}</p>
+            
+            {/* Memory image */}
+            <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden bg-muted">
+              {!imageError ? (
+                <>
+                  {imageLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+                    </div>
+                  )}
+                  <img
+                    src={generateImageUrl(word.word)}
+                    alt={`Visual for ${word.word}`}
+                    className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
+                    onLoad={handleImageLoad}
+                    onError={handleImageError}
+                  />
+                </>
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
+                  <Image className="h-8 w-8 mb-2" />
+                  <p className="text-sm">{t('common.imageNotAvailable')}</p>
+                </div>
+              )}
+            </div>
             
             <div className="text-left mb-4">
               <h4 className="font-semibold">{language === 'en' ? 'Definition:' : '释义：'}</h4>
