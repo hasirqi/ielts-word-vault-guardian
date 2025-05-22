@@ -7,6 +7,11 @@ export type Word = {
   id: string;
   word: string;
   phonetic: string;
+  etymology?: {
+    roots?: string;
+    affixes?: string;
+    explanation?: string;
+  };
   definitions: {
     en: string;
     zh: string;

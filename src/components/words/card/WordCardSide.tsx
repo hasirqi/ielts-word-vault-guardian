@@ -5,6 +5,7 @@ import WordImage from './WordImage';
 import WordAudio from './WordAudio';
 import WordDefinition from './WordDefinition';
 import WordCardButtons from './WordCardButtons';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface WordCardSideProps {
   word: Word;
@@ -25,6 +26,7 @@ const WordCardSide: React.FC<WordCardSideProps> = ({
   onUnknown,
   handleFlip
 }) => {
+  const { language } = useLanguage();
   const frontOrBackClass = isBackSide ? 'flip-card-back' : 'flip-card-front';
   const displayClass = (isBackSide && (showAnswer || isBackSide)) || (!isBackSide && !showAnswer) 
     ? 'block' 
@@ -43,7 +45,29 @@ const WordCardSide: React.FC<WordCardSideProps> = ({
     >
       <div className="text-center">
         <h3 className="text-3xl font-bold mb-2">{word.word}</h3>
-        <p className="text-muted-foreground mb-4">{word.phonetic}</p>
+        <p className="text-muted-foreground mb-2">{word.phonetic}</p>
+        
+        {word.etymology && (
+          <div className="text-sm border-t border-b border-gray-200 dark:border-gray-700 py-2 mb-3 mt-1">
+            {word.etymology.roots && (
+              <p className="text-left">
+                <span className="font-medium">{language === 'en' ? 'Roots: ' : '词根：'}</span>
+                <span className="text-amber-600 dark:text-amber-400">{word.etymology.roots}</span>
+              </p>
+            )}
+            {word.etymology.affixes && (
+              <p className="text-left">
+                <span className="font-medium">{language === 'en' ? 'Affixes: ' : '词缀：'}</span>
+                <span className="text-emerald-600 dark:text-emerald-400">{word.etymology.affixes}</span>
+              </p>
+            )}
+            {word.etymology.explanation && (
+              <p className="text-left text-gray-600 dark:text-gray-400 italic mt-1">
+                {word.etymology.explanation}
+              </p>
+            )}
+          </div>
+        )}
         
         <WordImage word={word.word} />
         
