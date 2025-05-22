@@ -24,7 +24,8 @@ const WordAudio: React.FC<WordAudioProps> = ({
     
     // Using the Web Speech API for pronunciations
     const utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = 'en-US';
+    // Set the language based on the user's selected language or default to English
+    utterance.lang = language === 'zh' ? 'zh-CN' : 'en-US';
     speechSynthesis.speak(utterance);
   };
   

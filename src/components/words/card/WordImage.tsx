@@ -10,23 +10,42 @@ const WordImage: React.FC<WordImageProps> = ({ word }) => {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
 
-  // Generate a consistent image for each word using a more reliable method
+  // Generate a more unique image for each word using deterministic hashing
   const generateImageUrl = (word: string) => {
-    // Use placeholder images for predictable results
-    // We'll use the first character of the word to determine which placeholder to use
-    const firstChar = word.charAt(0).toLowerCase();
-    const charCode = firstChar.charCodeAt(0);
+    // Create a simple hash from the word to get variety in images
+    const hashString = (str: string): number => {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      return Math.abs(hash);
+    };
     
-    // Use one of 4 placeholder images based on the character code
-    const placeholders = [
-      "photo-1618160702438-9b02ab6515c9",
-      "photo-1472396961693-142e6e269027",
-      "photo-1535268647677-300dbf3d78d1",
-      "photo-1501286353178-1ec881214838"
+    const hash = hashString(word);
+    
+    // Use a variety of Unsplash collections for more diverse images
+    const collections = [
+      // Nature and landscapes
+      "1118905", "3178572", "4332580", "1976082", 
+      // Objects and abstract
+      "2489501", "3106804", "1242150", "1103088",
+      // Educational concepts
+      "3657445", "4587498", "1242150", "2489501",
+      // Technology
+      "4322575", "2276562", "8934890", "1210032"
     ];
     
-    const index = charCode % placeholders.length;
-    return `https://images.unsplash.com/${placeholders[index]}?w=300&h=200&fit=crop&q=80`;
+    // Different image sizes for variety
+    const sizes = ["400x300", "500x350", "450x300", "400x320"];
+    
+    // Select collection and size based on the word's hash
+    const collection = collections[hash % collections.length];
+    const size = sizes[hash % sizes.length];
+    
+    // Use Source Unsplash for a truly unique image per word
+    return `https://source.unsplash.com/collection/${collection}/${size}?${encodeURIComponent(word)}`;
   };
 
   const handleImageLoad = () => {
