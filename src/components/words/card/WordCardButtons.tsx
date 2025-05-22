@@ -16,7 +16,7 @@ const WordCardButtons: React.FC<WordCardButtonsProps> = ({ onKnown, onUnknown })
     <div className="flex justify-between mt-6 gap-3">
       <Button 
         variant="outline" 
-        className="w-[48%] flex items-center justify-center"
+        className="w-[48%] flex items-center justify-center border-red-400 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
         onClick={(e) => { 
           e.stopPropagation();
           onUnknown();
@@ -26,7 +26,7 @@ const WordCardButtons: React.FC<WordCardButtonsProps> = ({ onKnown, onUnknown })
         {t('learn.markAsUnknown')}
       </Button>
       <Button 
-        className="w-[48%] flex items-center justify-center"
+        className="w-[48%] flex items-center justify-center bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
         onClick={(e) => { 
           e.stopPropagation();
           onKnown();

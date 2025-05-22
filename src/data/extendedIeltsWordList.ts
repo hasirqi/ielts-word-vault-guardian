@@ -1,4 +1,3 @@
-
 import { Word } from '@/contexts/VocabularyContext';
 
 // This is a partial list of the 2000+ words
@@ -27,7 +26,7 @@ export const extendedIeltsWordList: Word[] = [
       en: 'Existing in thought or as an idea but not having a physical existence',
       zh: '抽象的；理论上的'
     },
-    example: 'The professor's lecture was too abstract for most students to understand.',
+    example: 'The professor\'s lecture was too abstract for most students to understand.',
     lastReviewed: null,
     nextReview: null,
     reviewCount: 0,
@@ -216,6 +215,77 @@ export const extendedIeltsWordList: Word[] = [
       zh: '调整；适应；使适合'
     },
     example: 'You may need to adjust the microphone volume.',
+    lastReviewed: null,
+    nextReview: null,
+    reviewCount: 0,
+    known: false
+  },
+  // Continue with more words...
+  {
+    id: 'ielts-16',
+    word: 'adhere',
+    phonetic: '/ədˈhɪə(r)/',
+    definitions: {
+      en: 'To stick firmly to something or to follow a set of beliefs or rules exactly',
+      zh: '黏附；坚持；遵守'
+    },
+    example: 'We must adhere to the safety regulations at all times.',
+    lastReviewed: null,
+    nextReview: null,
+    reviewCount: 0,
+    known: false
+  },
+  {
+    id: 'ielts-17',
+    word: 'adjacent',
+    phonetic: '/əˈdʒeɪsnt/',
+    definitions: {
+      en: 'Next to or adjoining something else',
+      zh: '邻近的；毗连的'
+    },
+    example: 'Our hotel room was adjacent to the elevator.',
+    lastReviewed: null,
+    nextReview: null,
+    reviewCount: 0,
+    known: false
+  },
+  {
+    id: 'ielts-18',
+    word: 'adjust',
+    phonetic: '/əˈdʒʌst/',
+    definitions: {
+      en: 'To make small changes to something to make it more suitable',
+      zh: '调整；适应；使适合'
+    },
+    example: 'You may need to adjust the microphone volume.',
+    lastReviewed: null,
+    nextReview: null,
+    reviewCount: 0,
+    known: false
+  },
+  {
+    id: 'ielts-19',
+    word: 'administrate',
+    phonetic: '/ədˈmɪnɪstreɪt/',
+    definitions: {
+      en: 'To manage or be responsible for running a business, organization, etc.',
+      zh: '管理；执行'
+    },
+    example: 'She was hired to administrate the new department.',
+    lastReviewed: null,
+    nextReview: null,
+    reviewCount: 0,
+    known: false
+  },
+  {
+    id: 'ielts-20',
+    word: 'adolescent',
+    phonetic: '/ˌædəˈlesnt/',
+    definitions: {
+      en: 'A young person who is developing into an adult',
+      zh: '青少年；青春期的'
+    },
+    example: 'The study focused on the behavior of adolescents in urban areas.',
     lastReviewed: null,
     nextReview: null,
     reviewCount: 0,
