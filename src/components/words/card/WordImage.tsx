@@ -9,9 +9,10 @@ interface WordImageProps {
 const WordImage: React.FC<WordImageProps> = ({ word }) => {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Generate a more unique image for each word using deterministic hashing
-  const generateImageUrl = (word: string) => {
+  const generateImageUrl = (word: string, retry = 0) => {
     // Create a simple hash from the word to get variety in images
     const hashString = (str: string): number => {
       let hash = 0;
@@ -23,7 +24,7 @@ const WordImage: React.FC<WordImageProps> = ({ word }) => {
       return Math.abs(hash);
     };
     
-    const hash = hashString(word);
+    const hash = hashString(word) + retry;
     
     // Use a variety of Unsplash collections for more diverse images
     const collections = [
@@ -34,18 +35,27 @@ const WordImage: React.FC<WordImageProps> = ({ word }) => {
       // Educational concepts
       "3657445", "4587498", "1242150", "2489501",
       // Technology
-      "4322575", "2276562", "8934890", "1210032"
+      "4322575", "2276562", "8934890", "1210032",
+      // People and lifestyle
+      "3678149", "2756272", "1241688", "4424267",
+      // Food and cuisine
+      "3698173", "4813745", "2489605", "4349748",
+      // Travel and places
+      "3846912", "2278389", "1507691", "2734867",
+      // Business and work
+      "2476111", "3389432", "2893961", "4427377"
     ];
     
     // Different image sizes for variety
-    const sizes = ["400x300", "500x350", "450x300", "400x320"];
+    const sizes = ["400x300", "450x300", "500x350", "400x320"];
     
     // Select collection and size based on the word's hash
     const collection = collections[hash % collections.length];
     const size = sizes[hash % sizes.length];
     
-    // Use Source Unsplash for a truly unique image per word
-    return `https://source.unsplash.com/collection/${collection}/${size}?${encodeURIComponent(word)}`;
+    // Add a timestamp and retry parameter to prevent caching issues
+    const timestamp = new Date().getTime();
+    return `https://source.unsplash.com/collection/${collection}/${size}?${encodeURIComponent(word)}&t=${timestamp}&retry=${retry}`;
   };
 
   const handleImageLoad = () => {
@@ -53,8 +63,13 @@ const WordImage: React.FC<WordImageProps> = ({ word }) => {
   };
 
   const handleImageError = () => {
-    setImageError(true);
-    setImageLoading(false);
+    if (retryCount < 2) {
+      setRetryCount(prev => prev + 1);
+      setImageError(false); // Reset error for retry
+    } else {
+      setImageError(true);
+      setImageLoading(false);
+    }
   };
 
   return (
@@ -67,7 +82,7 @@ const WordImage: React.FC<WordImageProps> = ({ word }) => {
             </div>
           )}
           <img
-            src={generateImageUrl(word)}
+            src={generateImageUrl(word, retryCount)}
             alt={`Visual for ${word}`}
             className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
             onLoad={handleImageLoad}
