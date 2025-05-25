@@ -1,24 +1,24 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { ieltsWordList } from '@/data/ieltsWordList';
+// import { ieltsWordList } from '@/data/ieltsWordList'; // 暂时注释掉，使用 API 数据
+import { getWords, updateWordStatus, updateWordReview, importLocalWords, clearWords } from '@/lib/api';
 
 // Define Word type
 export type Word = {
   id: string;
   word: string;
   phonetic: string;
-  etymology?: {
-    roots?: string;
-    affixes?: string;
-    explanation?: string;
-  };
+  roots?: string | null;
+  affixes?: string | null;
+  etymology: { roots: string; affixes: string; explanation: string; } | string | null;
   definitions: {
     en: string;
     zh: string;
   };
+  definitionEn?: string;  // For backward compatibility
+  definitionZh?: string;  // For backward compatibility
   example: string;
-  lastReviewed: number | null;
-  nextReview: number | null;
+  lastReviewed: number | null;  // Unix timestamp
+  nextReview: number | null;    // Unix timestamp
   reviewCount: number;
   known: boolean;
 };
@@ -54,23 +54,42 @@ const reviewIntervals = [1, 24, 72, 168, 336, 672, 1344];
 const VocabularyContext = createContext<VocabularyContextType | undefined>(undefined);
 
 export const VocabularyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Initialize state with data from localStorage or default data
-  const [words, setWords] = useState<Word[]>(() => {
-    const savedWords = localStorage.getItem('ieltsWords');
-    return savedWords ? JSON.parse(savedWords) : ieltsWordList;
-  });
-
-  const [status, setStatus] = useState<LearningStatus>(() => {
-    const savedStatus = localStorage.getItem('learningStatus');
-    return savedStatus ? JSON.parse(savedStatus) : {
-      totalWords: ieltsWordList.length,
-      learnedWords: 0,
-      toReviewToday: 0,
-      dailyGoal: 10,
-      streak: 0,
-      lastStudyDate: null
+  const [words, setWords] = useState<Word[]>([]);
+  const [status, setStatus] = useState<LearningStatus>(() => ({
+    totalWords: 0,
+    learnedWords: 0,
+    toReviewToday: 0,
+    dailyGoal: 10,
+    streak: 0,
+    lastStudyDate: null
+  }));  // Load words from database on mount
+  useEffect(() => {
+    const loadWords = async () => {
+      let dbWords: Word[] = [];
+      
+      try {
+        dbWords = await getWords();
+      } catch (e) {
+        console.error('Failed to load words from API:', e);
+      }
+      
+      if (!dbWords || dbWords.length === 0) {
+        // 如果数据库无数据，显示警告但不再fallback到本地文件
+        if (typeof window !== 'undefined') {
+          window.alert('后端API未启动或数据库无数据，请先启动API服务器并导入数据！');
+        }
+        dbWords = []; // 使用空数组而不是损坏的本地文件
+      }
+      
+      setWords(dbWords);
+      setStatus(prev => ({
+        ...prev,
+        totalWords: dbWords.length,
+        learnedWords: dbWords.filter(w => w.known).length,
+      }));
     };
-  });
+    loadWords();
+  }, []);
 
   // Calculate the next review time based on the review count
   const calculateNextReview = (reviewCount: number): number => {
@@ -79,15 +98,6 @@ export const VocabularyProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       : reviewIntervals[reviewCount];
     return Date.now() + interval * 60 * 60 * 1000; // Convert hours to milliseconds
   };
-
-  // Update localStorage whenever words or status change
-  useEffect(() => {
-    localStorage.setItem('ieltsWords', JSON.stringify(words));
-  }, [words]);
-
-  useEffect(() => {
-    localStorage.setItem('learningStatus', JSON.stringify(status));
-  }, [status]);
 
   // Update stats daily
   useEffect(() => {
@@ -253,10 +263,13 @@ export const VocabularyProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     return words.filter(word => word.nextReview && word.nextReview <= now);
   };
 
-  const resetProgress = () => {
-    setWords(ieltsWordList);
+  const resetProgress = async () => {
+    await clearWords();
+    await importLocalWords();
+    const dbWords = await getWords();
+    setWords(dbWords);
     setStatus({
-      totalWords: ieltsWordList.length,
+      totalWords: dbWords.length,
       learnedWords: 0,
       toReviewToday: 0,
       dailyGoal: 10,

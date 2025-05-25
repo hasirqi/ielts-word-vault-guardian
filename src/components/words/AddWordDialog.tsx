@@ -40,6 +40,20 @@ const AddWordDialog: React.FC<AddWordDialogProps> = ({
   initialWord,
 }) => {
   const { t } = useLanguage();
+  // Helper function to get definition values with backward compatibility
+  const getDefinitionEn = (word: Word) => {
+    if (word.definitions?.en) {
+      return word.definitions.en;
+    }
+    return word.definitionEn || '';
+  };
+
+  const getDefinitionZh = (word: Word) => {
+    if (word.definitions?.zh) {
+      return word.definitions.zh;
+    }
+    return word.definitionZh || '';
+  };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -47,8 +61,8 @@ const AddWordDialog: React.FC<AddWordDialogProps> = ({
       ? {
           word: initialWord.word,
           phonetic: initialWord.phonetic,
-          definitionEn: initialWord.definitions.en,
-          definitionZh: initialWord.definitions.zh,
+          definitionEn: getDefinitionEn(initialWord),
+          definitionZh: getDefinitionZh(initialWord),
           example: initialWord.example,
         }
       : {

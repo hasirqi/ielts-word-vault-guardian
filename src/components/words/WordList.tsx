@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Word } from '@/contexts/VocabularyContext';
@@ -26,7 +25,8 @@ const WordList: React.FC<WordListProps> = ({ words, onEdit, onDelete }) => {
   const filteredWords = words.filter(
     word => 
       word.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      word.definitions[language].toLowerCase().includes(searchTerm.toLowerCase())
+      word.definitionEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      word.definitionZh.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const playAudio = (word: string) => {
@@ -37,82 +37,71 @@ const WordList: React.FC<WordListProps> = ({ words, onEdit, onDelete }) => {
 
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
-        <Input
-          placeholder={t('vocab.search')}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
+      <div className="flex justify-between items-center">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
+          <Input
+            placeholder={t('vocab.search')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {t('vocab.totalWords')}: {words.length}
+        </div>
       </div>
       
-      <div className="rounded-md border overflow-hidden">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t('vocab.word')}</TableHead>
-              <TableHead className="hidden md:table-cell">{t('vocab.phonetics')}</TableHead>
-              <TableHead>{t('vocab.meaning')}</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
+              <TableHead className="w-[200px]">{t('vocab.word')}</TableHead>
+              <TableHead>{t('vocab.phonetic')}</TableHead>
+              <TableHead>{t('vocab.definitionEn')}</TableHead>
+              <TableHead>{t('vocab.definitionZh')}</TableHead>
+              <TableHead>{t('vocab.example')}</TableHead>
+              <TableHead className="w-[100px]">{t('vocab.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredWords.length > 0 ? (
-              filteredWords.map((word) => (
-                <TableRow key={word.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center space-x-2">
-                      <span>{word.word}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => playAudio(word.word)}
-                        className="h-6 w-6"
-                      >
-                        <Volume2 size={14} />
-                      </Button>
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">{word.phonetic}</TableCell>
-                  <TableCell className="max-w-[300px] truncate">
-                    {word.definitions[language]}
-                  </TableCell>
-                  <TableCell>
+            {filteredWords.map(word => (
+              <TableRow key={word.id}>
+                <TableCell className="font-medium">
+                  <div className="flex items-center space-x-2">
+                    <span>{word.word}</span>
+                    <Button variant="ghost" size="icon" onClick={() => playAudio(word.word)}>
+                      <Volume2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+                <TableCell>{word.phonetic}</TableCell>
+                <TableCell>{word.definitionEn}</TableCell>
+                <TableCell>{word.definitionZh}</TableCell>
+                <TableCell>{word.example}</TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-2">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
-                          <MoreHorizontal size={16} />
+                          <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {onEdit && (
-                          <DropdownMenuItem onClick={() => onEdit(word)}>
-                            <Edit size={14} className="mr-2" />
-                            {t('vocab.edit')}
-                          </DropdownMenuItem>
-                        )}
-                        {onDelete && (
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={() => onDelete(word.id)}
-                          >
-                            <Trash2 size={14} className="mr-2" />
-                            {t('vocab.delete')}
-                          </DropdownMenuItem>
-                        )}
+                        <DropdownMenuItem onClick={() => onEdit?.(word)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          {t('common.edit')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onDelete?.(word.id)} className="text-destructive">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          {t('common.delete')}
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
-                  {searchTerm ? `${t('common.error')}: ${t('common.noResults')}` : `${t('common.error')}: ${t('common.noWords')}`}
+                  </div>
                 </TableCell>
               </TableRow>
-            )}
+            ))}
           </TableBody>
         </Table>
       </div>

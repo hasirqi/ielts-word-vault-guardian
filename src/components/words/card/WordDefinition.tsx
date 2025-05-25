@@ -12,13 +12,22 @@ const WordDefinition: React.FC<WordDefinitionProps> = ({ word }) => {
   const { language, t } = useLanguage();
   const [showExample, setShowExample] = useState(false);
   
+  // 兼容新旧数据结构
+  const getDefinition = (lang: 'en' | 'zh') => {
+    if (word.definitions && typeof word.definitions === 'object') {
+      return word.definitions[lang];
+    }
+    // 兼容旧结构
+    return lang === 'en' ? word.definitionEn : word.definitionZh;
+  };
+  
   return (
     <div className="text-left mb-4">
       <h4 className="font-semibold">{language === 'en' ? 'Definition:' : '释义：'}</h4>
-      <p className="mb-2">{word.definitions[language]}</p>
+      <p className="mb-2">{getDefinition(language)}</p>
       
       {language === 'zh' && (
-        <p className="text-muted-foreground text-sm">{word.definitions.en}</p>
+        <p className="text-muted-foreground text-sm">{getDefinition('en')}</p>
       )}
       
       {showExample && (

@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Word {
+  sequenceNumber Int       @default(autoincrement()) @id
+  id             String    @unique
+  word           String
+  phonetic       String
+  roots          String?
+  affixes        String?
+  etymology      String?
+  definitionEn   String
+  definitionZh   String
+  example        String
+  lastReviewed   DateTime?
+  nextReview     DateTime?
+  reviewCount    Int       @default(0)
+  known          Boolean   @default(false)
+}

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库查看器 - IELTS 词汇数据库</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .controls {
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .word-column {
+            font-weight: bold;
+            color: #495057;
+        }
+        .phonetic-column {
+            color: #007bff;
+            font-style: italic;
+        }
+        .definition-column {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .status-known {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-unknown {
+            color: #dc3545;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 4px;
+            border: 1px solid #f5c6cb;
+        }
+        .refresh-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .refresh-btn:hover {
+            background: #0056b3;
+        }
+        .table-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 IELTS 词汇数据库查看器</h1>
+            <p>实时查看和分析您的词汇学习数据</p>
+        </div>
+        
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalWords">-</div>
+                <div class="stat-label">总词汇数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="knownWords">-</div>
+                <div class="stat-label">已掌握</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="unknownWords">-</div>
+                <div class="stat-label">待学习</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="reviewWords">-</div>
+                <div class="stat-label">需复习</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="searchBox" class="search-box" placeholder="搜索词汇...">
+            <button class="refresh-btn" onclick="loadData()">🔄 刷新数据</button>
+        </div>
+
+        <div class="table-container">
+            <div id="loading" class="loading">
+                <p>正在加载数据库内容...</p>
+            </div>
+            <div id="error" class="error" style="display: none;"></div>
+            <table id="dataTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th>单词</th>
+                        <th>音标</th>
+                        <th>中文释义</th>
+                        <th>英文释义</th>
+                        <th>例句</th>
+                        <th>词根词缀词源</th> <!-- 新增 -->
+                        <th>复习次数</th>
+                        <th>掌握状态</th>
+                        <th>最后复习</th>
+                        <th>下次复习</th>
+                    </tr>
+                </thead>
+                <tbody id="dataBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let allWords = [];
+        
+        async function loadData() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const table = document.getElementById('dataTable');
+            
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            table.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/words');
+                if (!response.ok) {
+                    throw new Error(`API 请求失败: ${response.status} ${response.statusText}`);
+                }
+                
+                allWords = await response.json();
+                updateStats();
+                renderTable(allWords);
+                
+                loading.style.display = 'none';
+                table.style.display = 'table';
+                
+            } catch (err) {
+                console.error('加载数据失败:', err);
+                loading.style.display = 'none';
+                error.style.display = 'block';
+                error.innerHTML = `
+                    <strong>错误：</strong> ${err.message}<br>
+                    <small>请确保 API 服务器正在运行，端口正确，且数据库已初始化。</small>
+                `;
+            }
+        }
+        
+        function updateStats() {
+            const total = allWords.length;
+            const known = allWords.filter(w => w.known).length;
+            const unknown = total - known;
+            const needReview = allWords.filter(w => 
+                w.nextReview && new Date(w.nextReview) <= new Date()
+            ).length;
+            
+            document.getElementById('totalWords').textContent = total;
+            document.getElementById('knownWords').textContent = known;
+            document.getElementById('unknownWords').textContent = unknown;
+            document.getElementById('reviewWords').textContent = needReview;
+        }
+        
+        function renderTable(words) {
+            const tbody = document.getElementById('dataBody');
+            tbody.innerHTML = '';
+            
+            words.forEach((word, index) => {
+                const row = document.createElement('tr');
+                
+                const formatDate = (dateStr) => {
+                    if (!dateStr) return '-';
+                    const date = new Date(dateStr);
+                    return date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', {hour: '2-digit', minute:'2-digit'});
+                };
+                // 词根词缀词源风格
+                let roots = word.etymology?.roots || word.roots || '';
+                let affixes = word.etymology?.affixes || word.affixes || '';
+                let explanation = word.etymology?.explanation || word.etymology || '';
+                let rootAffixStr = '';
+                if (roots) rootAffixStr += `词根: ${roots}`;
+                if (affixes) rootAffixStr += (rootAffixStr ? ' | ' : '') + `词缀: ${affixes}`;
+                if (explanation) rootAffixStr += (rootAffixStr ? ' | ' : '') + `词源: ${explanation}`;
+                if (!rootAffixStr) rootAffixStr = '-';
+                
+                row.innerHTML = `
+                    <td>${word.number || word.sequenceNumber || index + 1}</td>
+                    <td class="word-column">${word.word}</td>
+                    <td class="phonetic-column">${word.phonetic || '-'}</td>
+                    <td class="definition-column" title="${word.definitionZh}">${word.definitionZh}</td>
+                    <td class="definition-column" title="${word.definitionEn}">${word.definitionEn}</td>
+                    <td class="definition-column" title="${word.example}">${word.example}</td>
+                    <td class="definition-column" title="${rootAffixStr}">${rootAffixStr}</td>
+                    <td>${word.reviewCount || 0}</td>
+                    <td class="${word.known ? 'status-known' : 'status-unknown'}">
+                        ${word.known ? '✅ 已掌握' : '❌ 待学习'}
+                    </td>
+                    <td>${formatDate(word.lastReviewed)}</td>
+                    <td>${formatDate(word.nextReview)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function filterWords() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const filtered = allWords.filter(word => 
+                word.word.toLowerCase().includes(searchTerm) ||
+                word.definitionZh.toLowerCase().includes(searchTerm) ||
+                word.definitionEn.toLowerCase().includes(searchTerm)
+            );
+            renderTable(filtered);
+        }
+        
+        document.getElementById('searchBox').addEventListener('input', filterWords);
+        
+        // 页面加载时自动获取数据
+        window.addEventListener('load', loadData);
+        
+        // 每30秒自动刷新一次数据
+        setInterval(loadData, 30000);
+    </script>
+</body>
+</html>

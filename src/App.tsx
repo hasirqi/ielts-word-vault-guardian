@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -18,6 +18,11 @@ import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+function handleRefreshCache() {
+  localStorage.clear();
+  window.location.reload();
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -62,6 +67,12 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
+            <button
+              style={{position: 'fixed', top: 10, right: 10, zIndex: 9999, background: '#fff', border: '1px solid #ccc', padding: '6px 12px', borderRadius: 4, cursor: 'pointer'}}
+              onClick={handleRefreshCache}
+            >
+              刷新缓存
+            </button>
           </TooltipProvider>
         </VocabularyProvider>
       </LanguageProvider>
