@@ -21,6 +21,16 @@ export type Word = {
   nextReview: number | null;    // Unix timestamp
   reviewCount: number;
   known: boolean;
+  // New extended fields
+  difficultyLevel?: number | null;    // 难度等级 1-5
+  partOfSpeech?: string | null;       // 词性
+  synonyms?: string | null;           // 同义词 (逗号分隔)
+  antonyms?: string | null;           // 反义词 (逗号分隔)
+  frequency?: number | null;          // 使用频率 1-10
+  imageUrl?: string | null;           // 图片URL
+  memoryTip?: string | null;          // 记忆提示
+  category?: string | null;           // 分类标签
+  source?: string | null;             // 来源
 };
 
 // Define the learning status

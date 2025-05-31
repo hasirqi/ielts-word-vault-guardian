@@ -1,0 +1,10 @@
+-- AlterTable
+ALTER TABLE "Word" ADD COLUMN "antonyms" TEXT;
+ALTER TABLE "Word" ADD COLUMN "category" TEXT;
+ALTER TABLE "Word" ADD COLUMN "difficultyLevel" INTEGER;
+ALTER TABLE "Word" ADD COLUMN "frequency" INTEGER;
+ALTER TABLE "Word" ADD COLUMN "imageUrl" TEXT;
+ALTER TABLE "Word" ADD COLUMN "memoryTip" TEXT;
+ALTER TABLE "Word" ADD COLUMN "partOfSpeech" TEXT;
+ALTER TABLE "Word" ADD COLUMN "source" TEXT;
+ALTER TABLE "Word" ADD COLUMN "synonyms" TEXT;

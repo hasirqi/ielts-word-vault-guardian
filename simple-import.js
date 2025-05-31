@@ -52,7 +52,16 @@ async function importWordsSimple() {
         lastReviewed: null,
         nextReview: null,
         reviewCount: 0,
-        known: false
+        known: false,
+        difficultyLevel: null,    // 难度等级 - 待填充
+        partOfSpeech: null,       // 词性 - 待填充  
+        synonyms: null,           // 同义词 - 待填充
+        antonyms: null,           // 反义词 - 待填充
+        frequency: null,          // 使用频率 - 待填充
+        imageUrl: null,           // 图片URL - 待填充
+        memoryTip: null,          // 记忆提示 - 待填充
+        category: null,           // 分类标签 - 待填充
+        source: 'IELTS Core Words' // 来源
       }));
         await prisma.word.createMany({
         data: wordData

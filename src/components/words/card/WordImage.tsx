@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Image } from 'lucide-react';
 
@@ -61,53 +60,46 @@ const WordImage: React.FC<WordImageProps> = ({ word }) => {
 
   // Use Pixabay API as a fallback option
   const generatePixabayUrl = (word: string) => {
-    // Use a proxy to avoid CORS issues with the browser preview
+    // 使用你的Pixabay API Key
     const encodedWord = encodeURIComponent(word);
-    return `https://pixabay.com/api/?key=39666206-330a421da9842acf3d844353c&q=${encodedWord}&image_type=photo&per_page=3&safesearch=true`;
+    return `https://pixabay.com/api/?key=49179769-315165653ef98bc0ba64186b4&q=${encodedWord}&image_type=photo&per_page=3&safesearch=true`;
   };
 
   // Load image when component mounts or word/retryCount changes
   useEffect(() => {
     setImageLoading(true);
     setImageError(false);
-    
-    // First, try with Unsplash collections
-    const unsplashUrl = generateImageUrl(word, retryCount);
-    setImageSrc(unsplashUrl);
-    
+    // 优先用Pixabay
+    fetch(generatePixabayUrl(word))
+      .then(response => response.json())
+      .then(data => {
+        if (data.hits && data.hits.length > 0) {
+          const randomIndex = Math.floor(Math.random() * data.hits.length);
+          setImageSrc(data.hits[randomIndex].webformatURL);
+          setImageError(false);
+        } else {
+          // Pixabay无结果再降级Unsplash
+          const unsplashUrl = generateImageUrl(word, retryCount);
+          setImageSrc(unsplashUrl);
+        }
+      })
+      .catch(() => {
+        // Pixabay网络异常也降级Unsplash
+        const unsplashUrl = generateImageUrl(word, retryCount);
+        setImageSrc(unsplashUrl);
+      });
   }, [word, retryCount]);
 
   const handleImageLoad = () => {
     setImageLoading(false);
   };
 
+  // handleImageError 只做重试，不再fetch pixabay
   const handleImageError = () => {
     if (retryCount < 2) {
-      // Try again with Unsplash with increased retry count
       setRetryCount(prev => prev + 1);
       setImageError(false);
-    } else if (retryCount === 2) {
-      // If Unsplash failed after retries, switch to Pixabay API
-      fetch(generatePixabayUrl(word))
-        .then(response => response.json())
-        .then(data => {
-          if (data.hits && data.hits.length > 0) {
-            const randomIndex = Math.floor(Math.random() * Math.min(data.hits.length, 3));
-            setImageSrc(data.hits[randomIndex].webformatURL);
-            setImageError(false);
-          } else {
-            // If no Pixabay results, show error state
-            setImageError(true);
-            setImageLoading(false);
-          }
-        })
-        .catch(() => {
-          setImageError(true);
-          setImageLoading(false);
-        });
-      setRetryCount(prev => prev + 1);
     } else {
-      // All attempts failed
       setImageError(true);
       setImageLoading(false);
     }

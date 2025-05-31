@@ -8,18 +8,27 @@ datasource db {
 }
 
 model Word {
-  sequenceNumber Int       @default(autoincrement()) @id
-  id             String    @unique
-  word           String
-  phonetic       String
-  roots          String?
-  affixes        String?
-  etymology      String?
-  definitionEn   String
-  definitionZh   String
-  example        String
-  lastReviewed   DateTime?
-  nextReview     DateTime?
-  reviewCount    Int       @default(0)
-  known          Boolean   @default(false)
+  sequenceNumber   Int       @default(autoincrement()) @id
+  id               String    @unique
+  word             String
+  phonetic         String
+  roots            String?
+  affixes          String?
+  etymology        String?
+  definitionEn     String
+  definitionZh     String
+  example          String
+  lastReviewed     DateTime?
+  nextReview       DateTime?
+  reviewCount      Int       @default(0)
+  known            Boolean   @default(false)
+  difficultyLevel  Int?      // 难度等级 1-5
+  partOfSpeech     String?   // 词性
+  synonyms         String?   // 同义词 (逗号分隔)
+  antonyms         String?   // 反义词 (逗号分隔)
+  frequency        Int?      // 使用频率 1-10
+  imageUrl         String?   // 图片URL
+  memoryTip        String?   // 记忆提示
+  category         String?   // 分类标签
+  source           String?   // 来源
 }
