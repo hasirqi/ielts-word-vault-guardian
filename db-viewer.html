@@ -91,12 +91,10 @@
         const tableBody = document.getElementById('tableBody');
         const rowCount = document.getElementById('rowCount');
         const searchInput = document.getElementById('searchInput');
-        const refreshBtn = document.getElementById('refreshBtn');
-
-        async function fetchWords() {
+        const refreshBtn = document.getElementById('refreshBtn');        async function fetchWords() {
             try {
                 showLoading();
-                const response = await fetch('http://localhost:3001/api/words');
+                const response = await fetch('/api/words');
                 if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 const data = await response.json();
                 wordsData = Array.isArray(data) ? data : [];

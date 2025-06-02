@@ -58,6 +58,24 @@
 - 推荐 Vercel + Supabase 部署，支持自动化构建、云端数据库、PWA。
 - 支持一键推送、自动部署、环境变量配置。
 
+## 本地开发常用入口
+
+- 主应用界面：http://localhost:5173
+- 数据库查看器：http://localhost:5173/db-viewer.html
+
+> ⚠️ 本地开发时，API 路由（/api/words 等）已由 Vite 中间件自动代理，无需单独启动 `api-server.js`。
+
+## 常见问题排查
+
+- **数据库查看器报“无法加载词汇数据: Failed to fetch”**
+  - 请确保访问地址为 `http://localhost:5173/db-viewer.html`，不要访问 3001 端口。
+  - 确认已通过 `npm run dev` 启动开发服务器。
+  - 若端口被占用，可在 `vite.config.ts` 修改端口。
+- **API 相关问题**
+  - 通过 `node test-api.js` 可快速测试 API 是否正常返回数据。
+- **依赖或数据库问题**
+  - 删除 `node_modules` 并重新 `npm install`，或重新执行 `npx prisma generate`。
+
 ## 主要功能
 
 - 雅思词汇卡片学习与复习（支持图片、例句、记忆法等）
@@ -140,6 +158,24 @@ See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)
 
 - Recommended: Vercel + Supabase for automated build, cloud DB, PWA.
 - One-click push, auto deploy, env config supported.
+
+## Database Viewer Usage
+
+- Main App: http://localhost:5173
+- Database Viewer: http://localhost:5173/db-viewer.html
+
+> ⚠️ In local development, API routes (such as /api/words) are automatically proxied by the Vite middleware. You do NOT need to start `api-server.js` separately.
+
+## Troubleshooting
+
+- **Database Viewer shows 'Failed to fetch'**
+  - Make sure you are visiting `http://localhost:5173/db-viewer.html` (not port 3001).
+  - Ensure the dev server is running via `npm run dev`.
+  - If the port is occupied, change it in `vite.config.ts`.
+- **API issues**
+  - Run `node test-api.js` to quickly test if the API returns data correctly.
+- **Dependency or DB issues**
+  - Delete `node_modules` and reinstall with `npm install`, or regenerate Prisma client with `npx prisma generate`.
 
 ## Main Features
 - IELTS word card learning & review (with images, examples, mnemonics, etc.)
